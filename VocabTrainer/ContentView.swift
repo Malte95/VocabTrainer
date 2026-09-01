@@ -10,7 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @State private var isShowingNewBoxSheet = false
     @State private var newBoxName = ""
-    @State private var vocabBoxes: [String] = []
+    @State private var vocabBoxes: [VocabBox] = []
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack {
@@ -24,10 +24,10 @@ struct ContentView: View {
                     Image(systemName: "plus")
                 }
             }
-            ForEach(vocabBoxes, id:\.self) { box in
+            ForEach(vocabBoxes) { box in
                 HStack {
                     Image(systemName: "rectangle.stack")
-                    Text(box)
+                    Text(box.name)
                 }
             }
             Spacer()
@@ -57,7 +57,8 @@ struct ContentView: View {
     
     private func createBox() {
         guard !trimmedBoxName.isEmpty else { return }
-        vocabBoxes.append(trimmedBoxName)
+        let newBox = VocabBox(name: trimmedBoxName)
+        vocabBoxes.append(newBox)
         newBoxName = ""
         isShowingNewBoxSheet = false
     }
