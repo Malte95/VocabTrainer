@@ -6,8 +6,14 @@
 //
 
 import Foundation
+import SwiftData
 
-struct VocabBox: Identifiable {
-    let id = UUID()
+@Model
+final class VocabBox {
     var name: String
+    
+    init(name: String) {
+        self.name = name
+    }
 }
+

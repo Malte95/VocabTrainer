@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct VocabTrainerApp: App {
@@ -13,5 +14,6 @@ struct VocabTrainerApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: VocabBox.self)
     }
 }

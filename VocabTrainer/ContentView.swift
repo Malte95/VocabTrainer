@@ -6,11 +6,13 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
+    @Environment(\.modelContext) private var modelContext
     @State private var isShowingNewBoxSheet = false
     @State private var newBoxName = ""
-    @State private var vocabBoxes: [VocabBox] = []
+    @Query private var vocabBoxes: [VocabBox]
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack {
@@ -58,7 +60,7 @@ struct ContentView: View {
     private func createBox() {
         guard !trimmedBoxName.isEmpty else { return }
         let newBox = VocabBox(name: trimmedBoxName)
-        vocabBoxes.append(newBox)
+        modelContext.insert(newBox)
         newBoxName = ""
         isShowingNewBoxSheet = false
     }
