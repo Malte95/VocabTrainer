@@ -60,9 +60,15 @@ struct ContentView: View {
     private func createBox() {
         guard !trimmedBoxName.isEmpty else { return }
         let newBox = VocabBox(name: trimmedBoxName)
-        modelContext.insert(newBox)
-        newBoxName = ""
-        isShowingNewBoxSheet = false
+        do {
+            modelContext.insert(newBox)
+            try modelContext.save()
+            newBoxName = ""
+            isShowingNewBoxSheet = false
+        } catch {
+            modelContext.rollback()
+            print(error.localizedDescription)
+        }
     }
 }
 
