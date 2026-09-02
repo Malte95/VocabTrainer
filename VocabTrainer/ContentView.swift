@@ -12,6 +12,8 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var isShowingNewBoxSheet = false
     @State private var newBoxName = ""
+    @State private var boxPendingDeletion: VocabBox? = nil
+    @State private var isShowingDeleteAlert: Bool = false
     @Query private var vocabBoxes: [VocabBox]
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -30,6 +32,13 @@ struct ContentView: View {
                 HStack {
                     Image(systemName: "rectangle.stack")
                     Text(box.name)
+                    Spacer()
+                    Button(role: .destructive) {
+                        boxPendingDeletion = box
+                        isShowingDeleteAlert = true
+                    } label: {
+                        Image(systemName: "trash")
+                    }
                 }
             }
             Spacer()
@@ -52,6 +61,20 @@ struct ContentView: View {
             }
             .padding()
         }
+        .alert(
+            "Vokabelbox löschen?",
+            isPresented: $isShowingDeleteAlert,
+            presenting: boxPendingDeletion
+        ) { box in
+            Button("Löschen", role: .destructive) {
+                deleteBox(box)
+            }
+            Button("Abbrechen", role: .cancel) {
+    
+            }
+        } message: { box in
+            Text("Möchtest du die Vokabelbox „\(box.name)“ wirklich löschen?")
+        }
     }
     private var trimmedBoxName: String {
         newBoxName.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -65,6 +88,16 @@ struct ContentView: View {
             try modelContext.save()
             newBoxName = ""
             isShowingNewBoxSheet = false
+        } catch {
+            modelContext.rollback()
+            print(error.localizedDescription)
+        }
+    }
+    
+    private func deleteBox(_ box: VocabBox) {
+        do {
+            modelContext.delete(box)
+            try modelContext.save()
         } catch {
             modelContext.rollback()
             print(error.localizedDescription)
