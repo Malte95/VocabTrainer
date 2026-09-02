@@ -14,6 +14,9 @@ struct ContentView: View {
     @State private var newBoxName = ""
     @State private var boxPendingDeletion: VocabBox? = nil
     @State private var isShowingDeleteAlert: Bool = false
+    @State private var boxPendingEdit: VocabBox? = nil
+    @State private var editedBoxName = ""
+    @State private var isShowingEditBoxSheet: Bool = false
     @Query private var vocabBoxes: [VocabBox]
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -33,6 +36,13 @@ struct ContentView: View {
                     Image(systemName: "rectangle.stack")
                     Text(box.name)
                     Spacer()
+                    Button {
+                        boxPendingEdit = box
+                        editedBoxName = box.name
+                        isShowingEditBoxSheet = true
+                    } label: {
+                        Image(systemName: "pencil")
+                    }
                     Button(role: .destructive) {
                         boxPendingDeletion = box
                         isShowingDeleteAlert = true
@@ -61,6 +71,22 @@ struct ContentView: View {
             }
             .padding()
         }
+        .sheet(isPresented: $isShowingEditBoxSheet) {
+            VStack {
+                Text("Vokabelbox umbenennen")
+                TextField("Name der Box", text: $editedBoxName)
+                    .textFieldStyle(.roundedBorder)
+                    .submitLabel(.done)
+                    .onSubmit {
+                        renameBox()
+                    }
+                Button("Speichern") {
+                    renameBox()
+                }
+                .disabled(trimmedEditedBoxName.isEmpty)
+            }
+            .padding()
+        }
         .alert(
             "Vokabelbox löschen?",
             isPresented: $isShowingDeleteAlert,
@@ -78,6 +104,9 @@ struct ContentView: View {
     }
     private var trimmedBoxName: String {
         newBoxName.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    private var trimmedEditedBoxName: String {
+        editedBoxName.trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
     private func createBox() {
@@ -98,6 +127,21 @@ struct ContentView: View {
         do {
             modelContext.delete(box)
             try modelContext.save()
+        } catch {
+            modelContext.rollback()
+            print(error.localizedDescription)
+        }
+    }
+    
+    private func renameBox() {
+        guard let box = boxPendingEdit else { return }
+        guard !trimmedEditedBoxName.isEmpty else { return }
+        do {
+            box.name = trimmedEditedBoxName
+            try modelContext.save()
+            editedBoxName = ""
+            boxPendingEdit = nil
+            isShowingEditBoxSheet = false
         } catch {
             modelContext.rollback()
             print(error.localizedDescription)
