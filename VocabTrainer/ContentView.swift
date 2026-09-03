@@ -19,87 +19,96 @@ struct ContentView: View {
     @State private var isShowingEditBoxSheet: Bool = false
     @Query private var vocabBoxes: [VocabBox]
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            HStack {
-                Text("Meine Vokabelboxen")
-                    .font(.largeTitle)
-                Spacer()
-                Button {
-                    newBoxName = ""
-                    isShowingNewBoxSheet = true
-                } label: {
-                    Image(systemName: "plus")
-                }
-            }
-            ForEach(vocabBoxes) { box in
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 20) {
                 HStack {
-                    Image(systemName: "rectangle.stack")
-                    Text(box.name)
+                    Text("Meine Vokabelboxen")
+                        .font(.largeTitle)
                     Spacer()
                     Button {
-                        boxPendingEdit = box
-                        editedBoxName = box.name
-                        isShowingEditBoxSheet = true
+                        newBoxName = ""
+                        isShowingNewBoxSheet = true
                     } label: {
-                        Image(systemName: "pencil")
-                    }
-                    Button(role: .destructive) {
-                        boxPendingDeletion = box
-                        isShowingDeleteAlert = true
-                    } label: {
-                        Image(systemName: "trash")
+                        Image(systemName: "plus")
                     }
                 }
+                ForEach(vocabBoxes) { box in
+                    HStack {
+                        NavigationLink {
+                            VocabBoxDetailView(box: box)
+                        } label: {
+                            HStack {
+                                Image(systemName: "rectangle.stack")
+                                Text(box.name)
+                            }
+                            
+                        }
+                        Spacer()
+                        Button {
+                            boxPendingEdit = box
+                            editedBoxName = box.name
+                            isShowingEditBoxSheet = true
+                        } label: {
+                            Image(systemName: "pencil")
+                        }
+                        Button(role: .destructive) {
+                            boxPendingDeletion = box
+                            isShowingDeleteAlert = true
+                        } label: {
+                            Image(systemName: "trash")
+                        }
+                    }
+                }
+                Spacer()
             }
-            Spacer()
-        }
-        .padding()
-        .sheet(isPresented: $isShowingNewBoxSheet) {
-            VStack {
-                Text("Neue Vokabelbox")
-                TextField("Name der Box", text: $newBoxName)
-                    .textFieldStyle(.roundedBorder)
-                    .submitLabel(.done)
-                    .onSubmit {
+            .padding()
+            .sheet(isPresented: $isShowingNewBoxSheet) {
+                VStack {
+                    Text("Neue Vokabelbox")
+                    TextField("Name der Box", text: $newBoxName)
+                        .textFieldStyle(.roundedBorder)
+                        .submitLabel(.done)
+                        .onSubmit {
+                            createBox()
+                        }
+                    Button("Erstellen") {
                         createBox()
                     }
-                Button("Erstellen") {
-                    createBox()
+                    .disabled(trimmedBoxName.isEmpty)
+                    
                 }
-                .disabled(trimmedBoxName.isEmpty)
-                
+                .padding()
             }
-            .padding()
-        }
-        .sheet(isPresented: $isShowingEditBoxSheet) {
-            VStack {
-                Text("Vokabelbox umbenennen")
-                TextField("Name der Box", text: $editedBoxName)
-                    .textFieldStyle(.roundedBorder)
-                    .submitLabel(.done)
-                    .onSubmit {
+            .sheet(isPresented: $isShowingEditBoxSheet) {
+                VStack {
+                    Text("Vokabelbox umbenennen")
+                    TextField("Name der Box", text: $editedBoxName)
+                        .textFieldStyle(.roundedBorder)
+                        .submitLabel(.done)
+                        .onSubmit {
+                            renameBox()
+                        }
+                    Button("Speichern") {
                         renameBox()
                     }
-                Button("Speichern") {
-                    renameBox()
+                    .disabled(trimmedEditedBoxName.isEmpty)
                 }
-                .disabled(trimmedEditedBoxName.isEmpty)
+                .padding()
             }
-            .padding()
-        }
-        .alert(
-            "Vokabelbox löschen?",
-            isPresented: $isShowingDeleteAlert,
-            presenting: boxPendingDeletion
-        ) { box in
-            Button("Löschen", role: .destructive) {
-                deleteBox(box)
+            .alert(
+                "Vokabelbox löschen?",
+                isPresented: $isShowingDeleteAlert,
+                presenting: boxPendingDeletion
+            ) { box in
+                Button("Löschen", role: .destructive) {
+                    deleteBox(box)
+                }
+                Button("Abbrechen", role: .cancel) {
+                    
+                }
+            } message: { box in
+                Text("Möchtest du die Vokabelbox „\(box.name)“ wirklich löschen?")
             }
-            Button("Abbrechen", role: .cancel) {
-    
-            }
-        } message: { box in
-            Text("Möchtest du die Vokabelbox „\(box.name)“ wirklich löschen?")
         }
     }
     private var trimmedBoxName: String {

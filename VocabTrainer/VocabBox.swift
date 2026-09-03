@@ -11,6 +11,8 @@ import SwiftData
 @Model
 final class VocabBox {
     var name: String
+    @Relationship(deleteRule: .cascade)
+    var vocabularies: [Vocabulary] = []
     
     init(name: String) {
         self.name = name
