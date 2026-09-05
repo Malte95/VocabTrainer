@@ -6,11 +6,13 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct VocabBoxDetailView: View {
     let box: VocabBox
     @State private var newEnglishWord: String = ""
     @State private var newGermanWord: String = ""
+    @Environment(\.modelContext) private var modelContext
     var body: some View {
         VStack {
             Text(box.name)
@@ -30,10 +32,46 @@ struct VocabBoxDetailView: View {
             Button("Hinzufügen") {
                 addVocabulary()
             }
+            .disabled(trimmedEnglishWord.isEmpty || trimmedGermanWord.isEmpty)
+            
+            HStack {
+                Text("🇬🇧").frame(maxWidth: .infinity)
+                Text("🇩🇪").frame(maxWidth: .infinity)
+            }
+            
+            List(box.vocabularies) { vocabulary in
+                HStack {
+                    Text(vocabulary.english)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    Text(vocabulary.german)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+            .listStyle(.plain)
         }
     }
+    private var trimmedEnglishWord : String {
+        newEnglishWord.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    private var trimmedGermanWord : String {
+        newGermanWord.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
+    
     private func addVocabulary() {
-        print(newEnglishWord, newGermanWord)
+        guard !trimmedEnglishWord.isEmpty,
+              !trimmedGermanWord.isEmpty else { return }
+        let newVocabulary = Vocabulary(english: trimmedEnglishWord, german: trimmedGermanWord)
+        do {
+            box.vocabularies.append(newVocabulary)
+            try modelContext.save()
+            newEnglishWord = ""
+            newGermanWord = ""
+        } catch {
+            modelContext.rollback()
+            print(error.localizedDescription)
+        }
     }
 }
 
