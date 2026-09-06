@@ -47,6 +47,14 @@ struct VocabBoxDetailView: View {
                     Text(vocabulary.german)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                    Button(role: .destructive) {
+                        deleteVocabulary(vocabulary)
+                    } label: {
+                        Image(systemName: "trash")
+                        
+                    }
+                }
             }
             .listStyle(.plain)
         }
@@ -70,6 +78,14 @@ struct VocabBoxDetailView: View {
             newGermanWord = ""
         } catch {
             modelContext.rollback()
+            print(error.localizedDescription)
+        }
+    }
+    
+    private func deleteVocabulary(_ vocabulary: Vocabulary) {
+        do { modelContext.delete(vocabulary)
+            try modelContext.save()
+        } catch { modelContext.rollback()
             print(error.localizedDescription)
         }
     }
