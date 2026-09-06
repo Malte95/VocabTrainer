@@ -12,6 +12,10 @@ struct VocabBoxDetailView: View {
     let box: VocabBox
     @State private var newEnglishWord: String = ""
     @State private var newGermanWord: String = ""
+    @State private var vocabularyPendingEdit: Vocabulary? = nil
+    @State private var editedEnglishWord = ""
+    @State private var editedGermanWord = ""
+    @State private var isShowingEditVocabularySheet: Bool = false
     @Environment(\.modelContext) private var modelContext
     var body: some View {
         VStack {
@@ -55,15 +59,54 @@ struct VocabBoxDetailView: View {
                         
                     }
                 }
+                .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                    Button {
+                        vocabularyPendingEdit = vocabulary
+                        editedEnglishWord = vocabulary.english
+                        editedGermanWord = vocabulary.german
+                        isShowingEditVocabularySheet = true
+                    } label: {
+                        Image(systemName: "pencil")
+                    }
+                }
             }
             .listStyle(.plain)
         }
+        .sheet(isPresented: $isShowingEditVocabularySheet){
+            VStack {
+                Text("Vokabel bearbeiten")
+                HStack {
+                    Text("🇬🇧")
+                    TextField("Englisches Wort", text: $editedEnglishWord)
+                        .textFieldStyle(.roundedBorder)
+                        .textInputAutocapitalization(.never)
+                    
+                }
+                HStack {
+                    Text("🇩🇪")
+                    TextField("Deutsches Wort", text: $editedGermanWord)
+                        .textFieldStyle(.roundedBorder)
+                        .textInputAutocapitalization(.never)
+                }
+                Button ("Speichern") {
+                    updateVocabulary()
+                }
+                .disabled(trimmedEditedEnglishWord.isEmpty || trimmedEditedGermanWord.isEmpty)
+            }
+        }
     }
+        
     private var trimmedEnglishWord : String {
         newEnglishWord.trimmingCharacters(in: .whitespacesAndNewlines)
     }
     private var trimmedGermanWord : String {
         newGermanWord.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    private var trimmedEditedEnglishWord : String {
+        editedEnglishWord.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    private var trimmedEditedGermanWord : String {
+        editedGermanWord.trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
     
@@ -89,6 +132,26 @@ struct VocabBoxDetailView: View {
             print(error.localizedDescription)
         }
     }
+    
+    private func updateVocabulary() {
+        guard let vocabulary = vocabularyPendingEdit else { return }
+        guard !trimmedEditedEnglishWord.isEmpty,
+              !trimmedEditedGermanWord.isEmpty else { return }
+        do {
+            vocabulary.english = trimmedEditedEnglishWord
+            vocabulary.german = trimmedEditedGermanWord
+            try modelContext.save()
+            editedEnglishWord = ""
+            editedGermanWord = ""
+            vocabularyPendingEdit = nil
+            isShowingEditVocabularySheet = false
+        } catch {
+            modelContext.rollback()
+            print(error.localizedDescription)
+        }
+        
+    }
+       
 }
 
 #Preview {
