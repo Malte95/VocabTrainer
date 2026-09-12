@@ -20,6 +20,9 @@ struct VocabBoxDetailView: View {
     var body: some View {
         VStack {
             Text(box.name)
+            NavigationLink("Üben"){
+                PracticeView(box: box)
+            }
             HStack {
                 Text("🇬🇧")
                 TextField("Add a new word", text: $newEnglishWord)
