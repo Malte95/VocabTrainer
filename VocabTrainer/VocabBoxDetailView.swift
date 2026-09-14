@@ -20,8 +20,8 @@ struct VocabBoxDetailView: View {
     var body: some View {
         VStack {
             Text(box.name)
-            NavigationLink("Üben"){
-                PracticeView(box: box)
+            NavigationLink("Übungen"){
+                TrainingOverviewView(box: box)
             }
             HStack {
                 Text("🇬🇧")
