@@ -16,6 +16,10 @@ struct PracticeView: View {
     @State private var lastCorrectAnswer: Vocabulary? = nil
     @State private var isProcessingAnswer = false
     @State private var totalVocabularyCount = 0
+    @State private var incorrectAttemptsForCurrentVocabulary = 0
+    @State private var correctWithoutErrorsCount = 0
+    @State private var correctWithOneErrorCount = 0
+    @State private var correctWithMultipleErrorsCount = 0
     var body: some View {
         VStack {
             Text(box.name)
@@ -27,6 +31,13 @@ struct PracticeView: View {
                             lastCorrectAnswer = vocabulary
                             lastIncorrectAnswer = nil
                             isProcessingAnswer = true
+                            if incorrectAttemptsForCurrentVocabulary == 0 {
+                                correctWithoutErrorsCount += 1
+                            } else if incorrectAttemptsForCurrentVocabulary == 1 {
+                                correctWithOneErrorCount += 1
+                            } else {
+                                correctWithMultipleErrorsCount += 1
+                            }
                             Task {
                                 try? await Task.sleep(for: .milliseconds(500))
                                 remainingVocabularies.removeFirst()
@@ -35,15 +46,18 @@ struct PracticeView: View {
                                 remainingAnswers.shuffle()
                                 lastCorrectAnswer = nil
                                 isProcessingAnswer = false
+                                incorrectAttemptsForCurrentVocabulary = 0
                             }
                             
                         } else {
                             lastIncorrectAnswer = vocabulary
+                            incorrectAttemptsForCurrentVocabulary += 1
                             if !incorrectVocabularies.contains(where: { item in
                                 item === currentVocabulary
                             }) {
                                 incorrectVocabularies.append(currentVocabulary)
                             }
+                          
                         }
                     }
                     
@@ -59,6 +73,9 @@ struct PracticeView: View {
             }
 
             Text("Fehlerhafte Vokabeln: \(incorrectVocabularies.count)")
+            Text("Grün: \(correctWithoutErrorsCount)")
+            Text("Gelbe: \(correctWithOneErrorCount)")
+            Text("Rot:\(correctWithMultipleErrorsCount)")
         }
         .onAppear {
             let shuffledArray = box.vocabularies.shuffled()
