@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Charts
 
 enum TrainingTab {
     case practice
@@ -65,6 +66,27 @@ struct TrainingOverviewView: View {
             Text("Grün: \(box.statisticWithoutErrors)")
             Text("Gelb: \(box.statisticWithOneError)")
             Text("Rot: \(box.statisticWithMultipleErrors)")
+            Chart {
+                SectorMark (
+                    angle: .value("Error-free", box.statisticWithoutErrors),
+                    innerRadius: .ratio(0.6)
+                )
+                .foregroundStyle(.green)
+                
+                SectorMark (
+                    angle: .value("One Error", box.statisticWithOneError),
+                    innerRadius: .ratio(0.6)
+                )
+                .foregroundStyle(.yellow)
+                
+                SectorMark (
+                    angle: .value("Multiple Errors", box.statisticWithMultipleErrors),
+                    innerRadius: .ratio(0.6)
+                )
+                .foregroundStyle(.red)
+                
+            }
+            .frame(width: 220, height: 220)
         }
         
     }
