@@ -101,9 +101,9 @@ struct PracticeView: View {
     }
     
     private func saveStatistics() {
-        box.statisticWithoutErrors = correctWithoutErrorsCount
-        box.statisticWithOneError = correctWithOneErrorCount
-        box.statisticWithMultipleErrors = correctWithMultipleErrorsCount
+        box.statisticWithoutErrors += correctWithoutErrorsCount
+        box.statisticWithOneError += correctWithOneErrorCount
+        box.statisticWithMultipleErrors += correctWithMultipleErrorsCount
         do {
             try modelContext.save()
         } catch {
