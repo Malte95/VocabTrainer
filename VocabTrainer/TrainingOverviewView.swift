@@ -48,6 +48,20 @@ struct TrainingOverviewView: View {
                         .frame(height: 3)
                 }
             }
+            NavigationLink {
+                if selectedTab == .practice {
+                    PracticeView(box: box)
+                } else {
+                    VocabularyTestView(box: box)
+                }
+            } label: {
+                Text("STARTEN")
+                    .foregroundStyle(.white)
+                    .padding()
+                    .frame(maxWidth: 200)
+                    .background(.orange)
+                    .cornerRadius(30)
+            }
         }
         
     }
