@@ -66,28 +66,42 @@ struct TrainingOverviewView: View {
             Text("Grün: \(box.statisticWithoutErrors)")
             Text("Gelb: \(box.statisticWithOneError)")
             Text("Rot: \(box.statisticWithMultipleErrors)")
-            Chart {
-                SectorMark (
-                    angle: .value("Error-free", box.statisticWithoutErrors),
-                    innerRadius: .ratio(0.6)
-                )
-                .foregroundStyle(.green)
-                
-                SectorMark (
-                    angle: .value("One Error", box.statisticWithOneError),
-                    innerRadius: .ratio(0.6)
-                )
-                .foregroundStyle(.yellow)
-                
-                SectorMark (
-                    angle: .value("Multiple Errors", box.statisticWithMultipleErrors),
-                    innerRadius: .ratio(0.6)
-                )
-                .foregroundStyle(.red)
-                
+            ZStack {
+                Chart {
+                    SectorMark (
+                        angle: .value("Error-free", box.statisticWithoutErrors),
+                        innerRadius: .ratio(0.6)
+                    )
+                    .foregroundStyle(.green)
+                    
+                    SectorMark (
+                        angle: .value("One error", box.statisticWithOneError),
+                        innerRadius: .ratio(0.6)
+                    )
+                    .foregroundStyle(.yellow)
+                    
+                    SectorMark (
+                        angle: .value("Multiple errors", box.statisticWithMultipleErrors),
+                        innerRadius: .ratio(0.6)
+                    )
+                    .foregroundStyle(.red)
+                    
+                }
+                .frame(width: 220, height: 220)
+                Text("\(successPercentage) %")
+                    .font(.title)
+                    .fontWeight(.bold)
             }
-            .frame(width: 220, height: 220)
         }
+        
+    }
+    private var totalStatisticCount: Int {
+        return box.statisticWithoutErrors + box.statisticWithOneError + box.statisticWithMultipleErrors
+    }
+    
+    private var successPercentage: Int {
+        guard totalStatisticCount > 0 else {return 0}
+        return box.statisticWithoutErrors * 100 / totalStatisticCount
         
     }
 }
