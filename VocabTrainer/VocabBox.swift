@@ -13,6 +13,9 @@ final class VocabBox {
     var name: String
     @Relationship(deleteRule: .cascade)
     var vocabularies: [Vocabulary] = []
+    var statisticWithoutErrors: Int = 0
+    var statisticWithOneError: Int = 0
+    var statisticWithMultipleErrors: Int = 0
     
     init(name: String) {
         self.name = name

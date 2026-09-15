@@ -62,6 +62,9 @@ struct TrainingOverviewView: View {
                     .background(.orange)
                     .cornerRadius(30)
             }
+            Text("Grün: \(box.statisticWithoutErrors)")
+            Text("Gelb: \(box.statisticWithOneError)")
+            Text("Rot: \(box.statisticWithMultipleErrors)")
         }
         
     }

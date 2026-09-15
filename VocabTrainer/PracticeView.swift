@@ -6,8 +6,10 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct PracticeView: View {
+    @Environment(\.modelContext) private var modelContext
     let box: VocabBox
     @State private var remainingVocabularies: [Vocabulary] = []
     @State private var remainingAnswers: [Vocabulary] = []
@@ -41,6 +43,9 @@ struct PracticeView: View {
                             Task {
                                 try? await Task.sleep(for: .milliseconds(500))
                                 remainingVocabularies.removeFirst()
+                                if remainingVocabularies.isEmpty {
+                                    saveStatistics()
+                                }
                                 remainingAnswers.removeAll {answer in
                                     answer === currentVocabulary}
                                 remainingAnswers.shuffle()
@@ -92,6 +97,18 @@ struct PracticeView: View {
             return Color.red
         } else {
             return Color.accentColor
+        }
+    }
+    
+    private func saveStatistics() {
+        box.statisticWithoutErrors = correctWithoutErrorsCount
+        box.statisticWithOneError = correctWithOneErrorCount
+        box.statisticWithMultipleErrors = correctWithMultipleErrorsCount
+        do {
+            try modelContext.save()
+        } catch {
+            modelContext.rollback()
+            print(error.localizedDescription)
         }
     }
 }
