@@ -63,9 +63,6 @@ struct TrainingOverviewView: View {
                     .background(.orange)
                     .cornerRadius(30)
             }
-            Text("Grün: \(box.statisticWithoutErrors)")
-            Text("Gelb: \(box.statisticWithOneError)")
-            Text("Rot: \(box.statisticWithMultipleErrors)")
             ZStack {
                 Chart {
                     SectorMark (
@@ -92,7 +89,56 @@ struct TrainingOverviewView: View {
                     .font(.title)
                     .fontWeight(.bold)
             }
+            
+            HStack {
+                VStack {
+                    Text("\(box.statisticWithoutErrors)")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.green)
+                    
+                    Text("Fehlerfrei")
+                        .foregroundStyle(.secondary)
+                }
+                .padding()
+                .frame(maxWidth: .infinity)
+                .frame(height: 110)
+                .background(Color.green.opacity(0.15))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                
+                VStack {
+                    Text("\(box.statisticWithOneError)")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.yellow)
+                    
+                    Text("Ein Fehler")
+                        .foregroundStyle(.secondary)
+                }
+                .padding()
+                .frame(maxWidth: .infinity)
+                .frame(height: 110)
+                .background(Color.yellow.opacity(0.15))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                
+                VStack {
+                    Text("\(box.statisticWithMultipleErrors)")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.red)
+                    
+                    Text("Mehrere Fehler")
+                        .foregroundStyle(.secondary)
+                }
+                .padding()
+                .frame(maxWidth: .infinity)
+                .frame(height: 110)
+                .background(Color.red.opacity(0.15))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            
         }
+        .frame(maxHeight: .infinity, alignment: .top)
         
     }
     private var totalStatisticCount: Int {
